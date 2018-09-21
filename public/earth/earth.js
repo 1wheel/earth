@@ -396,7 +396,6 @@
     }
 
     function createField(columns, bounds, mask) {
-
         /**
          * @returns {Array} wind vector [u, v, magnitude] at the point (x, y), or [NaN, NaN, null] if wind
          *          is undefined at that point.
@@ -1119,6 +1118,7 @@
         configuration.fetch();
     }
 
-    when(true).then(init).then(start).otherwise(report.error);
+    init()
+    start()
 
 })();
