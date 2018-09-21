@@ -363,36 +363,10 @@
     }
 
     function createMask(globe) {
-        if (!globe) return null;
-
-        log.time("render mask");
-
-        // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
-        var width = view.width, height = view.height;
-        var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
-        var context = globe.defineMask(canvas.getContext("2d"));
-        context.fillStyle = "rgba(255, 0, 0, 1)";
-        context.fill();
-        // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
-
-        var imageData = context.getImageData(0, 0, width, height);
-        var data = imageData.data;  // layout: [r, g, b, a, r, g, b, a, ...]
-        log.timeEnd("render mask");
         return {
-            imageData: imageData,
-            isVisible: function(x, y) {
-                var i = (y * width + x) * 4;
-                return data[i + 3] > 0;  // non-zero alpha means pixel is visible
-            },
-            set: function(x, y, rgba) {
-                var i = (y * width + x) * 4;
-                data[i    ] = rgba[0];
-                data[i + 1] = rgba[1];
-                data[i + 2] = rgba[2];
-                data[i + 3] = rgba[3];
-                return this;
-            }
-        };
+            isVisible: () => true,
+            set: function(){ return this },
+        }
     }
 
     function createField(columns, bounds, mask) {
@@ -439,7 +413,7 @@
             return o;
         };
 
-        field.overlay = mask.imageData;
+        // field.overlay = mask.imageData;
 
         return field;
     }
@@ -656,39 +630,7 @@
     }
 
     function drawOverlay(field, overlayType) {
-        if (!field) return;
-
-        var ctx = d3.select("#overlay").node().getContext("2d"), grid = (gridAgent.value() || {}).overlayGrid;
-
-        µ.clearCanvas(d3.select("#overlay").node());
-        µ.clearCanvas(d3.select("#scale").node());
-        if (overlayType) {
-            if (overlayType !== "off") {
-                ctx.putImageData(field.overlay, 0, 0);
-            }
-            drawGridPoints(ctx, grid, globeAgent.value());
-        }
-
-        if (grid) {
-            // Draw color bar for reference.
-            var colorBar = d3.select("#scale"), scale = grid.scale, bounds = scale.bounds;
-            var c = colorBar.node(), g = c.getContext("2d"), n = c.width - 1;
-            for (var i = 0; i <= n; i++) {
-                var rgb = scale.gradient(µ.spread(i / n, bounds[0], bounds[1]), 1);
-                g.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
-                g.fillRect(i, 0, 1, c.height);
-            }
-
-            // Show tooltip on hover.
-            colorBar.on("mousemove", function() {
-                var x = d3.mouse(this)[0];
-                var pct = µ.clamp((Math.round(x) - 2) / (n - 2), 0, 1);
-                var value = µ.spread(pct, bounds[0], bounds[1]);
-                var elementId = grid.type === "wind" ? "#location-wind-units" : "#location-value-units";
-                var units = createUnitToggle(elementId, grid).value();
-                colorBar.attr("title", µ.formatScalar(value, units) + " " + units.label);
-            });
-        }
+        if (!field || true) return;
     }
 
     /**
